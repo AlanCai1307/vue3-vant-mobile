@@ -1,80 +1,188 @@
 <script setup lang="ts">
-import type { PickerColumn } from 'vant'
 import useAppStore from '@/stores/modules/app'
-import { languageColumns, locale } from '@/utils/i18n'
+import router from '@/router'
+import img from '@/assets/images/img.png'
 
 definePage({
   name: 'home',
   meta: {
     level: 1,
+    // title: '全国人力资源投诉平台',
+    // i18n: '',
   },
 })
+const menuItems = [
+  { title: '在线投诉', label: '提交您的诉求，我们将尽快处理', route: 'create', icon: 'records-o' },
+  { title: '热线投诉', label: '拨打 12333 联系人工客服', route: '', icon: 'phone-o' },
+  { title: '查询投诉', label: '查看您的投诉进度和结果', route: 'query', icon: 'search' },
+]
 
+/**
+ * 随机
+ */
+const quotes = ref<string[]>(generateRandomQuotes(4))
+const currentIndex = ref(0) // 当前索引
+
+// 随机名言数组
+function getRandomMotivationalQuote(): string {
+  const quotesList: string[] = [
+    '让每一份劳动得到尊重!',
+    '团结一致，共同前行!',
+    '您的声音，我们倾听!',
+    '维护权益，从我做起!',
+    '一起创造更好的工作环境!',
+    '勇敢表达，改变从现在开始!',
+    '为每位劳动者发声!',
+    '心手相连，共筑和谐!',
+    '相信自己，追求公正!',
+    '保护权益，让辛勤付出有回报!',
+    '坚持立场，捍卫尊严!',
+    '您的努力，值得被肯定!',
+    '人人平等，权利共享!',
+    '勇气是一种力量!',
+    '共同奋斗，成就未来!',
+    '发声无畏，彼此支持!',
+    '每位劳动者都应被尊重!',
+    '团结的力量，无可阻挡!',
+    '携手并进，创造美好明天!',
+  ]
+
+  // 随机选择一句话
+  const randomIndex = Math.floor(Math.random() * quotesList.length)
+  return quotesList[randomIndex]
+}
+
+// 生成指定数量的唯一随机名言
+function generateRandomQuotes(count: number): string[] {
+  const uniqueQuotes = new Set<string>()
+
+  while (uniqueQuotes.size < count) {
+    uniqueQuotes.add(getRandomMotivationalQuote())
+  }
+
+  return Array.from(uniqueQuotes)
+}
+
+// 更新名言
+function updateQuotes() {
+  quotes.value = generateRandomQuotes(2) // 重新生成 4 条随机名言
+}
+
+/**
+ * 拨打热线电话，仅移动端访问
+ */
 const appStore = useAppStore()
-const checked = ref<boolean>(isDark.value)
-
-watch(
-  () => isDark.value,
-  (newMode) => {
-    checked.value = newMode
-  },
-  { immediate: true },
-)
-
-function toggle() {
-  toggleDark()
-  appStore.switchMode(isDark.value ? 'dark' : 'light')
+function handleClick(item: any, index: number) {
+  if (index === 1 && appStore.isMobile) {
+    window.location.href = 'tel:12333'
+  }
+  else {
+    router.push(item.route)
+  }
 }
-
-const { t } = useI18n()
-
-const showLanguagePicker = ref(false)
-const languageValues = ref<Array<string>>([locale.value])
-const language = computed(() => languageColumns.find(l => l.value === locale.value).text)
-
-function onLanguageConfirm(event: { selectedOptions: PickerColumn }) {
-  locale.value = event.selectedOptions[0].value as string
-  showLanguagePicker.value = false
-}
-
-const menuItems = computed(() => ([
-  { title: t('home.mockGuide'), route: 'mock' },
-  { title: t('home.echartsDemo'), route: 'charts' },
-  { title: t('home.unocssExample'), route: 'unocss' },
-  { title: t('home.persistPiniaState'), route: 'counter' },
-  { title: t('home.404Demo'), route: 'unknown' },
-  { title: t('home.keepAlive'), route: 'keepalive' },
-]))
 </script>
 
 <template>
-  <Container :padding-x="0">
-    <VanCellGroup inset>
-      <VanCell center :title="t('home.darkMode')">
-        <template #right-icon>
-          <VanSwitch v-model="checked" size="20px" aria-label="on/off Dark Mode" @click="toggle()" />
-        </template>
-      </VanCell>
+  <div class="home">
+    <div class="title">
+      全国人力资源投诉平台
+    </div>
+    <van-swipe v-model:current="currentIndex" class="my-swipe" :autoplay="3000" indicator-color="white" @change="updateQuotes">
+      <van-swipe-item v-for="(quote, index) in quotes" :key="index">
+        <img :src="img" alt="">
+        <div class="quote">
+          {{ quote }}
+        </div>
+      </van-swipe-item>
+    </van-swipe>
+    <VanCellGroup>
+      <template v-for="(item, index) in menuItems" :key="item.route">
+        <VanCell class="item" center :to="item.route" is-link @click="handleClick(item, index)">
+          <template #icon>
+            <van-icon class="icon" color="#5666d7" :name="item.icon" size="32" />
+          </template>
+          <template #right-icon>
+            <van-icon class="icon" color="#5666d7" name="arrow" />
+          </template>
 
-      <VanCell
-        is-link
-        :title="t('home.language')"
-        :value="language"
-        @click="showLanguagePicker = true"
-      />
-
-      <van-popup v-model:show="showLanguagePicker" position="bottom">
-        <van-picker
-          v-model="languageValues"
-          :columns="languageColumns"
-          @confirm="onLanguageConfirm"
-          @cancel="showLanguagePicker = false"
-        />
-      </van-popup>
-
-      <template v-for="item in menuItems" :key="item.route">
-        <VanCell :title="item.title" :to="item.route" is-link />
+          <template #title>
+            <div class="item-title">
+              {{ item.title }}
+            </div>
+          </template>
+          <template #label>
+            <div class="label">
+              {{ item.label }}
+            </div>
+          </template>
+        </VanCell>
       </template>
     </VanCellGroup>
-  </Container>
+  </div>
 </template>
+
+<style scoped lang="less">
+.home {
+  background-color: white;
+  padding-bottom: 8vh; //tab-bar高度
+  min-height: 92vh;
+  .title {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 16px;
+    text-align: center;
+    z-index: 1;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 32px;
+    color: rgba(255, 255, 255, 0.8);
+  }
+  .my-swipe .van-swipe-item {
+    height: 100vw;
+    img {
+      width: 100%;
+      height: 100%;
+    }
+    .quote {
+      position: absolute;
+      bottom: 20px;
+      left: 0;
+      right: 0;
+      padding: 16px;
+      text-align: center;
+      z-index: 1;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 24px;
+      color: #07f0f0;
+    }
+  }
+  .item {
+    .icon {
+      margin-right: 10px;
+    }
+    .item-title {
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 32px;
+      color: @primary;
+    }
+    .label {
+      font-size: 14px;
+      color: @secondary;
+    }
+  }
+}
+
+:deep(.van-cell) {
+  height: 100px;
+}
+:deep(.van-cell-group:after) {
+  border: none;
+}
+:deep(.van-cell:last-child:after) {
+  border: none; /* 去掉最后一个 VanCell 的边框 */
+}
+</style>

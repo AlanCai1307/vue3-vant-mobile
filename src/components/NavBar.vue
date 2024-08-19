@@ -17,14 +17,35 @@ const title = computed(() => {
 
   return route.meta.i18n ? t(route.meta.i18n) : (route.meta.title || '')
 })
+const showArrow = computed(() => {
+  return route.meta.level !== 1
+})
 </script>
 
 <template>
   <VanNavBar
-    v-show="title"
-    :title="title"
+    v-if="showArrow"
+    class="navBar"
     :fixed="true"
     clickable left-arrow
     @click-left="onBack"
-  />
+  >
+    <template #title>
+      <div class="title">
+        {{ title }}
+      </div>
+    </template>
+    <template #left>
+      <van-icon class="title" name="arrow-left" size="18" />
+    </template>
+  </VanNavBar>
 </template>
+
+<style lang="less" scoped>
+.navBar {
+  //background-color: @primary;
+}
+.title {
+  //color: #ffffff;
+}
+</style>
