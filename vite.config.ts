@@ -51,6 +51,11 @@ export default ({ mode }: ConfigEnv): UserConfig => {
           }),
         ],
       },
+      preprocessorOptions: {
+        less: {
+          additionalData: '@import "~@/styles/theme.less";',
+        },
+      },
     },
 
     build: {

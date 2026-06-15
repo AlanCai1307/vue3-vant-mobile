@@ -6,7 +6,7 @@ import useRouteTransitionNameStore from '@/stores/modules/routeTransitionName'
 import useAutoThemeSwitcher from '@/hooks/useAutoThemeSwitcher'
 
 useHead({
-  title: 'Vue3 Vant Mobile',
+  title: '',
   meta: [
     {
       name: 'description',
@@ -36,9 +36,15 @@ const { initializeThemeSwitcher } = useAutoThemeSwitcher(appStore)
 const keepAliveRouteNames = computed(() => {
   return useRouteCache().routeCaches as string[]
 })
-
+function checkMobile() {
+  const userAgent = navigator.userAgent
+  // 检测常见的移动设备
+  const isMobile = /android|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent)
+  appStore.setIsMobile(isMobile)
+}
 onMounted(() => {
   initializeThemeSwitcher()
+  checkMobile()
 })
 </script>
 

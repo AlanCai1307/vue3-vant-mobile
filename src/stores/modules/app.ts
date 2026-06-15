@@ -16,10 +16,15 @@ const useAppStore = defineStore('app', () => {
   const switchMode = (val: ConfigProviderTheme) => {
     mode.value = val
   }
-
+  const isMobile = ref(true)
+  const setIsMobile = (val: boolean) => {
+    isMobile.value = val
+  }
   return {
     mode,
     switchMode,
+    isMobile,
+    setIsMobile,
   }
 }, {
   persist: true,

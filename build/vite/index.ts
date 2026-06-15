@@ -85,7 +85,7 @@ export function createVitePlugins() {
     createViteVConsole(),
 
     // https://github.com/vuejs/devtools-next
-    VueDevTools(),
+    // VueDevTools(),
 
     // https://github.com/antfu/vite-plugin-pwa
     VitePWA({
